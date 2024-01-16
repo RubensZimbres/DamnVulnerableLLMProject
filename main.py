@@ -3,18 +3,52 @@ import sys
 import select
 import time
 import subprocess
+import warnings
+from google.cloud import aiplatform
+import vertexai
+from vertexai.language_models import CodeGenerationModel
+from google.cloud import secretmanager
+warnings.filterwarnings('ignore')
 
-if "OPENAI_API_KEY" not in os.environ:
-  print("You must set an OPENAI_API_KEY using the Secrets tool",
+def access_secret_version(secret_version_id):
+  client = secretmanager.SecretManagerServiceClient()
+  response = client.access_secret_version(name=secret_version_id)
+  return response.payload.data.decode('UTF-8')
+
+secret_version_id = f"projects/1028886663629/secrets/GOOGLE_APPLICATION_CREDENTIALS/versions/latest"
+
+key=access_secret_version(secret_version_id)
+os.getenv(key)
+
+vertexai.init(project='testing-2424', location='us-central1')
+
+def colored(r, g, b, text):
+    return "\033[38;2;{};{};{}m{} \033[38;2;255;255;255m".format(r, g, b, text)
+
+os.system('clear')
+print(colored(0,255,0,"""
+              ;           
+              0           
+             kMk          
+           ;XMMMX,        
+        .oXMMMMMMMXl.     
+   ..:xWMMMMMMMMMMMMMNx:..
+        .oXMMMMMMMXl.     
+           ;XMMMX,        
+             kMk          
+              0           
+              |         """.replace(',','o')))
+if len(key)<1:
+  print("You must set an GOOGLE_CLOUD_KEY using the Secrets tool",
         file=sys.stderr)
 else:
 
-  print("== OPENAI + REPLIT CUSTOM BOT==")
-  print("You have five seconds to select an option")
+  print(colored(0,255,0,"[+] == GEMINI CYBER BOT == [+]"),'\n')
+  print("You have twelve seconds to select an option:")
   print()
-  print("1: Train Model\n2: Talk to your Bot\n3: Prompt Injection CTF MODE\n4: AISafety Bypass CTF MODE\n>",end="")
+  print("1: Train Model\n2: Talk to your Bot\n3: Talk to your Cybersecurity Expert Bot\n4: Talk to your Hardened Cybersecurity Expert Bot\n5: Talk to your Cloud Cybersecurity Expert Bot>",end="")
 
-  i, o, e = select.select([sys.stdin], [], [], 10)
+  i, o, e = select.select([sys.stdin], [], [], 12)
   print()
 
   if (i):
@@ -22,44 +56,28 @@ else:
     time.sleep(0.5)
     os.system('clear')
     if choice == "1":
-      print("BOT TRAINING MODE")
+      print(colored(0,255,0,"[+] == BOT TRAINING MODE == [+]"),'\n')
+      #import get_code
+      #get_code.generate_code()
       import process
       process.train()
+      print("\nTraining . . .")
+      print("RAG "+ colored(0,255,0,"trained")+" =)")
     elif choice == "2":
-      print("BOT CONVERSATION MODE")
+      print(colored(255,255,0,"[+] == BOT CONVERSATION MODE == [+]\nLoading . . ."),'\n')
       import process
-      process.runPrompt()
+      process.runPrompt(2)
     elif choice == "3":
-      print("Prompt Injection CTF MODE")
-      import level2
-      level2.runPrompt()
+      print(colored(255,0,0,"[+] == BOT CYBERSECURITY EXPERT == [+]\nLoading . . ."),'\n')
+      import process
+      process.runPrompt(3)
     elif choice == "4":
-      print("AISafety Bypass CTF MODE")
-      import level3
-      level3.runPrompt()
+      print(colored(255,0,0,"[+] == BOT HARDENED CYBERSECURITY EXPERT == [+]\nLoading . . ."),'\n')
+      import process
+      process.runPrompt(4)
     else:
-      print("Booting into API Server…")
-      time.sleep(1)
-      os.system('clear')
-      print("BOT API SERVER RUNNING")
-      p = subprocess.Popen([sys.executable, 'server.py'],
-                           stdout=subprocess.PIPE,
-                           stderr=subprocess.STDOUT)
-      while True:
-        line = p.stdout.readline()
-        if not line: break
-
+      print(colored(0,0,255,"[+] == BOT CLOUD CYBERSECURITY EXPERT == [+]\nLoading . . ."),'\n')
+      import process
+      process.runPrompt(5)
   else:
-    time.sleep(0.5)
-    os.system('clear')
-    print("Booting into API Server…")
-    time.sleep(1)
-    os.system('clear')
-    print("BOT API SERVER RUNNING")
-    p = subprocess.Popen([sys.executable, 'server.py'],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
-    while True:
-      line = p.stdout.readline()
-      if not line: break
-
+    pass
